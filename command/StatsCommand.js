@@ -102,20 +102,25 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
                   let gameLost = 0;
 
                   for (const game of matches) {
-                    for (const player of game.players) {
-                      if (
-                        player.battleTag.toLowerCase() ===
-                        clanPlayer.battleTag.toLowerCase()
-                      ) {
-                        player.won ? gameLost++ : gameWon++;
+                    if (game.players.length === 2) {
+                      for (const player of game.players) {
+                        if (
+                          player.battleTag.toLowerCase() ===
+                          clanPlayer.battleTag.toLowerCase()
+                        ) {
+                          player.won ? gameLost++ : gameWon++;
+                        }
                       }
                     }
                   }
-                  outputStr += `${clanPlayer.pseudo} ${gameLost}/${gameWon} ${
-                    argumentList[0]
-                  }- (${Math.round(
-                    (gameLost / (gameWon + gameLost)) * 100
-                  )}) % \n`;
+
+                  if (clanPlayer.battleTag !== argumentList[0]) {
+                    outputStr += `${clanPlayer.pseudo} ${gameLost}/${gameWon} ${
+                      argumentList[0]
+                    }- (${Math.round(
+                      (gameLost / (gameWon + gameLost)) * 100
+                    )}) % \n`;
+                  }
                 }
               } else {
                 if (globalUtils.checkBattleTag(argumentList[2])) {

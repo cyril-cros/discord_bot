@@ -44,7 +44,7 @@ ${botName}!${this.command} 2to2AT ##==> Provides insight on W3C leagues Arranged
       });
     }
     async function getLeague1to1Info() {
-      outputStr += `LEAGUE 1 to 1\n\n`;
+      outputStr += `LEAGUE 1 to 1\n`;
       let league1to1 = await apiUtils.getLeague1to1();
 
       league1to1.forEach(league => {
