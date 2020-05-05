@@ -114,7 +114,10 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
                     }
                   }
 
-                  if (clanPlayer.battleTag !== argumentList[0]) {
+                  if (
+                    clanPlayer.battleTag !== argumentList[0] &&
+                    gameLost + gameWon > 0
+                  ) {
                     outputStr += `${clanPlayer.pseudo} ${gameLost}/${gameWon} ${
                       argumentList[0]
                     }- (${Math.round(
