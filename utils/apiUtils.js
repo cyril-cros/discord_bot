@@ -19,7 +19,7 @@ async function getPlayerStatsByBattleTag(battleTag) {
 }
 
 async function getLeague() {
-  let response = await axios.get(`${w3cApiUrl}/leagues/20`);
+  let response = await axios.get(`${w3cApiUrl}/leagues/20/1`);
   let rankCounter = 0;
 
   let leagues = {};
