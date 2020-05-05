@@ -15,12 +15,24 @@ class RankingCommand {
     this.clanName = clanName;
   }
 
-  async execute(commands) {
+  async execute(argumentList) {
     let outputStr = `${getClanName(
       this.clanName
     )} Lists W3C Ewok ranking: \n\n`;
 
-    let leagues = await apiUtils.getLeague();
+    switch (argumentList[0]) {
+      case "1to1":
+        //TODO
+        break;
+      case "2to2AT":
+        //TODO
+        break;
+      default:
+        //TODO
+        break;
+    }
+
+    let leagues = await apiUtils.getLeague1to1();
 
     let playerStats = [];
     try {

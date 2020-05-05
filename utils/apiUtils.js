@@ -18,10 +18,19 @@ async function getPlayerStatsByBattleTag(battleTag) {
   return formatPlayerData(response);
 }
 
-async function getLeague() {
+async function getLeague1to1() {
   let response = await axios.get(`${w3cApiUrl}/leagues/20/1`);
-  let rankCounter = 0;
 
+  return refactorLeague(response);
+}
+async function getLeague2to2AT() {
+  let response = await axios.get(`${w3cApiUrl}/leagues/20/6`);
+
+  return refactorLeague(response);
+}
+
+function refactorLeague(response) {
+  let rankCounter = 0;
   let leagues = {};
 
   if (response && response.data) {
@@ -35,7 +44,7 @@ async function getLeague() {
   return leagues;
 }
 
-async function getPLayersMatchesHistoryByBattleTag(battleTag) {
+async function getPlayersMatchesHistoryByBattleTag(battleTag) {
   let splitResult = battleTag.split("#");
 
   let matches = {};
@@ -83,6 +92,7 @@ function formatPlayerData(response) {
 }
 
 module.exports.getPlayers = getPlayerStats;
-module.exports.getPLayersMatchesHistoryByBattleTag = getPLayersMatchesHistoryByBattleTag;
-module.exports.getLeague = getLeague;
+module.exports.getPLayersMatchesHistoryByBattleTag = getPlayersMatchesHistoryByBattleTag;
+module.exports.getLeague1to1 = getLeague1to1;
+module.exports.getLeague2to2AT = getLeague2to2AT;
 module.exports.getPlayerStatsByBattleTag = getPlayerStatsByBattleTag;

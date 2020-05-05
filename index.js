@@ -104,7 +104,11 @@ async function processCommand(content, discordChannel) {
       break;
   }
 
-  discordChannel.send(outputMessage);
+  let messageChunk = outputMessage.match(/(.|[\r\n]){1,1998}/g);
+
+  messageChunk.forEach(chunk => {
+    discordChannel.send(chunk);
+  });
 }
 
 client.login(bot_secret_token);

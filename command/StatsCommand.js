@@ -22,7 +22,7 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
     let outputStr = `${getClanName(this.clanName)}`;
 
     if (argumentList) {
-      let leagues = await apiUtils.getLeague();
+      let leagues = await apiUtils.getLeague1to1();
 
       switch (argumentList.length) {
         // Retrieve stats of a player
