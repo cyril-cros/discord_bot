@@ -61,7 +61,7 @@ class ScheduledCommand {
             );
             if (historyResult) {
               playedAgainstClanCounter++;
-              outputStr += `:bear: ${historyResult.player1.name} (${historyResult.player1.battleTag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
+              outputStr += `:bear: ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
             }
           }
           if (playedAgainstClanCounter === 0) {

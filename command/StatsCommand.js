@@ -21,7 +21,7 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
   }
 
   async execute(fullCommand, argumentList) {
-    let outputStr = `${getClanName(this.clanName)} - ${fullCommand}`;
+    let outputStr = `${getClanName(this.clanName)} - ${fullCommand}\n`;
     try {
       if (argumentList) {
         let player1BattleTag = argumentList[0];
@@ -43,42 +43,29 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
                 if (
                   argumentList[2].toUpperCase() === this.clanName.toUpperCase()
                 ) {
-                  outputStr += ` Shows player stats against ${this.clanName} Clan players: \n\n`;
+                  // Get Opponent stats
+                  const opponentPlayer = new W3cPlayer(player1BattleTag);
+                  await opponentPlayer.initPlayer();
 
-                  let matches = await apiUtils.getPLayersMatchesHistoryByBattleTag(
-                    argumentList[0]
+                  outputStr += `:bear: ${opponentPlayer.name} (${opponentPlayer.battleTag}) VS  ${this.clanName} Clan players:\n`;
+                  outputStr += formatMessageUtils.formatSinglePlayerStats(
+                    opponentPlayer
                   );
-                  let clanPLayers = await fileUtils.getPlayers();
-
-                  for (const clanPlayer of clanPLayers) {
-                    let gameWon = 0;
-                    let gameLost = 0;
-
-                    for (const game of matches) {
-                      if (game.players.length === 2) {
-                        for (const player of game.players) {
-                          if (
-                            player.battleTag.toLowerCase() ===
-                            clanPlayer.battleTag.toLowerCase()
-                          ) {
-                            player.won ? gameLost++ : gameWon++;
-                          }
-                        }
-                      }
+                  let clanMembers = await fileUtils.getPlayers();
+                  let playedAgainstClanCounter = 0;
+                  outputStr += `\n**Stats against Clan ${this.clanName}**\n`;
+                  for (let cm of clanMembers) {
+                    const historyResult = await globalUtils.stat1v1vsPlayer(
+                      cm,
+                      opponentPlayer
+                    );
+                    if (historyResult) {
+                      playedAgainstClanCounter++;
+                      outputStr += `:bear: ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
                     }
-
-                    if (
-                      clanPlayer.battleTag !== argumentList[0] &&
-                      gameLost + gameWon > 0
-                    ) {
-                      outputStr += `${
-                        clanPlayer.pseudo
-                      } ${gameLost}/${gameWon} ${
-                        argumentList[0]
-                      }- (${Math.round(
-                        (gameLost / (gameWon + gameLost)) * 100
-                      )}) % \n`;
-                    }
+                  }
+                  if (playedAgainstClanCounter === 0) {
+                    outputStr += `**Never played against Clan ${this.clanName}**\n`;
                   }
                 } else {
                   if (globalUtils.checkBattleTag(argumentList[2])) {
