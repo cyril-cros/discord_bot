@@ -19,7 +19,8 @@ class ScheduledCommand {
     this.usage = ``;
   }
   async execute(fullCommand, argumentList) {
-    let outputStr = `${getClanName(this.clanName)} - ${fullCommand} \n`;
+    let outputStr = ``;
+
     try {
       let clanMembers = await fileUtils.getPlayers();
       for (let clanMember of clanMembers) {
@@ -30,8 +31,12 @@ class ScheduledCommand {
         if (
           onGoingMatch &&
           onGoingMatch.gameMode === 1 &&
-          this.onGoingMatchToBlacklist.indexOf(onGoingMatch.id) < 0
+          (argumentList &&
+            this.onGoingMatchToBlacklist.indexOf(onGoingMatch.id)) < 0
         ) {
+          outputStr += `${getClanName(this.clanName)} - ${fullCommand} \n`;
+
+          this.onGoingMatchToBlacklist.push(onGoingMatch.id);
           const opponent =
             onGoingMatch.teams[0].players[0].battleTag === clanMember.battleTag
               ? onGoingMatch.teams[1].players[0]

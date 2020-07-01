@@ -54,18 +54,18 @@ client.on("ready", () => {
     let generalChannel = client.channels.cache.get(currentChannelId); // Replace with known channel ID
     generalChannel.send(`I am Connected ! For more info => ${botName}!help`);
     // ########################################################### Scheduled Events //
-    //  cron.schedule("*/30 * * * * *", async () => {
-    //   let outputMessage;
-    //  outputMessage = await scheduledCommand.execute(botName, clanName);
+    cron.schedule("*/30 * * * * *", async () => {
+      let outputMessage;
+      outputMessage = await scheduledCommand.execute(botName, true);
 
-    //if (outputMessage !== "") {
-    //let messageChunk = outputMessage.match(/(.|[\r\n]){1,1998}/g);
+      if (outputMessage !== "") {
+        let messageChunk = outputMessage.match(/(.|[\r\n]){1,1998}/g);
 
-    //messageChunk.forEach(chunk => {
-    // generalChannel.send(chunk);
-    //});
-    // }
-    //});
+        messageChunk.forEach(chunk => {
+          generalChannel.send(chunk);
+        });
+      }
+    });
   }
 });
 
@@ -118,7 +118,7 @@ async function processCommand(content, discordChannel) {
       outputMessage = await statsCommand.execute(content, arguments);
       break;
     case "now":
-      outputMessage = await scheduledCommand.execute(content, arguments);
+      outputMessage = await scheduledCommand.execute(content, false);
       break;
     default:
       outputMessage = `I don't understand the command. Try ${botName}!help`;
