@@ -2,13 +2,10 @@ const fs = require("fs");
 const path = require("path");
 const playerFilePath = path.join(__dirname, "../config/clanPlayers.json");
 
-function getPlayers() {
+module.exports.getPlayers = async function() {
   return JSON.parse(fs.readFileSync(playerFilePath, "utf8"));
-}
+};
 
-function setPlayers(players) {
+module.exports.setPlayers = async function(players) {
   fs.writeFile(playerFilePath, JSON.stringify(players), err => {});
-}
-
-module.exports.getPlayers = getPlayers;
-module.exports.setPlayers = setPlayers;
+};

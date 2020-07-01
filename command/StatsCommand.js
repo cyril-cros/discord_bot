@@ -2,6 +2,7 @@ const getClanName = require("../utils/formatMessage").getClanName;
 const globalUtils = require("../utils/globalUtils");
 const apiUtils = require("../utils/apiUtils");
 const fileUtils = require("../utils/fileUtils");
+const formatMessageUtils = require("../utils/formatMessage");
 
 class StatsCommand {
   command;
@@ -18,157 +19,111 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
     this.description = `Shows player stats`;
   }
 
-  async execute(argumentList) {
-    let outputStr = `${getClanName(this.clanName)}`;
+  async execute(fullCommand, argumentList) {
+    let outputStr = `${getClanName(this.clanName)} - ${fullCommand}`;
+    try {
+      if (argumentList) {
+        let player1BattleTag = argumentList[0];
+        switch (argumentList.length) {
+          // Retrieve stats of a player
+          case 1:
+            let player = await apiUtils.getPlayerObj(player1BattleTag);
+            if (player && player.battleTag !== undefined) {
+              outputStr += formatMessageUtils.formatSinglePlayerStats(player);
+            } else {
+              outputStr += `:interrobang: - ERROR - Player not found => ${player1BattleTag}`;
+            }
+            break;
+          // compare stats between 1 player or a clan
+          case 3:
+            if (globalUtils.checkBattleTag(argumentList[0])) {
+              if (argumentList[1].toUpperCase() === "VS") {
+                if (
+                  argumentList[2].toUpperCase() === this.clanName.toUpperCase()
+                ) {
+                  outputStr += ` Shows player stats against ${this.clanName} Clan players: \n\n`;
 
-    if (argumentList) {
-      let leagues = await apiUtils.getLeague1to1();
+                  let matches = await apiUtils.getPLayersMatchesHistoryByBattleTag(
+                    argumentList[0]
+                  );
+                  let clanPLayers = await fileUtils.getPlayers();
 
-      switch (argumentList.length) {
-        // Retrieve stats of a player
-        case 1:
-          outputStr += ` Shows player stats: \n\n`;
-          if (globalUtils.checkBattleTag(argumentList[0])) {
-            let player1 = await apiUtils.getPlayerStatsByBattleTag(
-              argumentList[0]
-            );
-            outputStr += ` [#${
-              leagues[player1.leagueId]
-                ? leagues[player1.leagueId].from - 1 + player1.leagueRank
-                : "Unranked"
-            }] ${player1.pseudo} - ${player1.winlosseSolo} (${
-              player1.winlosseRatioSolo
-            }) - rp=${player1.rp} mmr=${player1.mmr} - ${player1.league} (#${
-              player1.leagueRank
-            })\n\n`;
+                  for (const clanPlayer of clanPLayers) {
+                    let gameWon = 0;
+                    let gameLost = 0;
 
-            outputStr += `Human     ${player1.stats.human.wins}/${
-              player1.stats.human.losses
-            } (${Math.round(
-              (player1.stats.human.wins /
-                (player1.stats.human.wins + player1.stats.human.losses)) *
-                100
-            )}%)\n`;
-            outputStr += `orc           ${player1.stats.orc.wins}/${
-              player1.stats.orc.losses
-            } (${Math.round(
-              (player1.stats.orc.wins /
-                (player1.stats.orc.wins + player1.stats.orc.losses)) *
-                100
-            )}%)\n`;
-            outputStr += `undead    ${player1.stats.undead.wins}/${
-              player1.stats.undead.losses
-            } (${Math.round(
-              (player1.stats.undead.wins /
-                (player1.stats.undead.wins + player1.stats.undead.losses)) *
-                100
-            )}%)\n`;
-            outputStr += `night_elf  ${player1.stats.night_elf.wins}/${
-              player1.stats.night_elf.losses
-            } (${Math.round(
-              (player1.stats.night_elf.wins /
-                (player1.stats.night_elf.wins +
-                  player1.stats.night_elf.losses)) *
-                100
-            )}%)\n`;
-            outputStr += `random    ${player1.stats.random.wins}/${
-              player1.stats.random.losses
-            } (${Math.round(
-              (player1.stats.random.wins /
-                (player1.stats.random.wins + player1.stats.random.losses)) *
-                100
-            )}%)\n`;
-          } else {
-            outputStr += `ERROR - Wrong battleTag in first argument: ${argumentList[0]}`;
-          }
+                    for (const game of matches) {
+                      if (game.players.length === 2) {
+                        for (const player of game.players) {
+                          if (
+                            player.battleTag.toLowerCase() ===
+                            clanPlayer.battleTag.toLowerCase()
+                          ) {
+                            player.won ? gameLost++ : gameWon++;
+                          }
+                        }
+                      }
+                    }
 
-          break;
-        // compare stats between 1 player or a clan
-        case 3:
-          if (globalUtils.checkBattleTag(argumentList[0])) {
-            if (argumentList[1].toUpperCase() === "VS") {
-              if (
-                argumentList[2].toUpperCase() === this.clanName.toUpperCase()
-              ) {
-                outputStr += ` Shows player stats against ${this.clanName} Clan players: \n\n`;
+                    if (
+                      clanPlayer.battleTag !== argumentList[0] &&
+                      gameLost + gameWon > 0
+                    ) {
+                      outputStr += `${
+                        clanPlayer.pseudo
+                      } ${gameLost}/${gameWon} ${
+                        argumentList[0]
+                      }- (${Math.round(
+                        (gameLost / (gameWon + gameLost)) * 100
+                      )}) % \n`;
+                    }
+                  }
+                } else {
+                  if (globalUtils.checkBattleTag(argumentList[2])) {
+                    outputStr += ` Shows player stats against ${argumentList[2]} player: \n\n`;
+                    let matches = await apiUtils.getPLayersMatchesHistoryByBattleTag(
+                      argumentList[0]
+                    );
 
-                let matches = await apiUtils.getPLayersMatchesHistoryByBattleTag(
-                  argumentList[0]
-                );
-                let clanPLayers = await fileUtils.getPlayers();
+                    let gameWon = 0;
+                    let gameLost = 0;
 
-                for (const clanPlayer of clanPLayers) {
-                  let gameWon = 0;
-                  let gameLost = 0;
-
-                  for (const game of matches) {
-                    if (game.players.length === 2) {
+                    for (const game of matches) {
                       for (const player of game.players) {
                         if (
                           player.battleTag.toLowerCase() ===
-                          clanPlayer.battleTag.toLowerCase()
+                          argumentList[2].toLowerCase()
                         ) {
                           player.won ? gameLost++ : gameWon++;
                         }
                       }
                     }
-                  }
-
-                  if (
-                    clanPlayer.battleTag !== argumentList[0] &&
-                    gameLost + gameWon > 0
-                  ) {
-                    outputStr += `${clanPlayer.pseudo} ${gameLost}/${gameWon} ${
-                      argumentList[0]
+                    outputStr += `${argumentList[0]} ${gameWon}/${gameLost} ${
+                      argumentList[2]
                     }- (${Math.round(
-                      (gameLost / (gameWon + gameLost)) * 100
+                      (gameWon / (gameWon + gameLost)) * 100
                     )}) % \n`;
+                  } else {
+                    outputStr += `ERROR - Wrong battleTag in thrid argument: ${argumentList[2]}`;
                   }
                 }
               } else {
-                if (globalUtils.checkBattleTag(argumentList[2])) {
-                  outputStr += ` Shows player stats against ${argumentList[2]} player: \n\n`;
-                  let matches = await apiUtils.getPLayersMatchesHistoryByBattleTag(
-                    argumentList[0]
-                  );
-
-                  let gameWon = 0;
-                  let gameLost = 0;
-
-                  for (const game of matches) {
-                    for (const player of game.players) {
-                      if (
-                        player.battleTag.toLowerCase() ===
-                        argumentList[2].toLowerCase()
-                      ) {
-                        player.won ? gameLost++ : gameWon++;
-                      }
-                    }
-                  }
-                  outputStr += `${argumentList[0]} ${gameWon}/${gameLost} ${
-                    argumentList[2]
-                  }- (${Math.round(
-                    (gameWon / (gameWon + gameLost)) * 100
-                  )}) % \n`;
-                } else {
-                  outputStr += `ERROR - Wrong battleTag in thrid argument: ${argumentList[2]}`;
-                }
+                outputStr += `ERROR - Wrong keyword in second argument it should be VS`;
               }
             } else {
-              outputStr += `ERROR - Wrong keyword in second argument it should be VS`;
+              outputStr += `ERROR - Wrong battleTag in first argument: ${argumentList[0]}`;
             }
-          } else {
-            outputStr += `ERROR - Wrong battleTag in first argument: ${argumentList[0]}`;
-          }
-          break;
-        default:
-          outputStr += `ERROR - Wrong number of arguments`;
-          break;
+            break;
+          default:
+            outputStr += `ERROR - Wrong number of arguments`;
+            break;
+        }
+      } else {
+        outputStr += `ERROR - This command requires arguments`;
       }
-    } else {
-      outputStr += `ERROR - This command requires arguments`;
+    } catch (error) {
+      outputStr += `\n:interrobang: - ERROR - Unexpected error => ${error}`;
     }
-
     return outputStr;
   }
 }

@@ -3,6 +3,7 @@
 // ########################################################### IMPORTS //
 const Discord = require("discord.js");
 const client = new Discord.Client();
+const cron = require("node-cron");
 
 // ########################################################### PARAMETERS //
 const bot_secret_token = process.env.BOT_TOKEN;
@@ -25,6 +26,7 @@ const ClanPlayersCommand = require("./command/ClanPlayersCommand");
 const RankingCommand = require("./command/RankingCommand");
 const LeagueCommand = require("./command/LeagueCommand");
 const StatsCommand = require("./command/StatsCommand");
+const ScheduledCommand = require("./command/ScheduledCommand");
 
 helpCommand = new HelpCommand(botName, clanName);
 chefCommand = new ChefCommand(botName, clanName);
@@ -32,6 +34,7 @@ clanPlayersCommand = new ClanPlayersCommand(botName, clanName);
 rankingCommand = new RankingCommand(botName, clanName);
 leagueCommand = new LeagueCommand(botName, clanName);
 statsCommand = new StatsCommand(botName, clanName);
+scheduledCommand = new ScheduledCommand(botName, clanName);
 
 const commandList = [
   helpCommand,
@@ -50,8 +53,23 @@ client.on("ready", () => {
   ) {
     let generalChannel = client.channels.cache.get(currentChannelId); // Replace with known channel ID
     generalChannel.send(`I am Connected ! For more info => ${botName}!help`);
+    // ########################################################### Scheduled Events //
+    //  cron.schedule("*/30 * * * * *", async () => {
+    //   let outputMessage;
+    //  outputMessage = await scheduledCommand.execute(botName, clanName);
+
+    //if (outputMessage !== "") {
+    //let messageChunk = outputMessage.match(/(.|[\r\n]){1,1998}/g);
+
+    //messageChunk.forEach(chunk => {
+    // generalChannel.send(chunk);
+    //});
+    // }
+    //});
   }
 });
+
+async function execScheduler() {}
 
 client.on("message", receivedMessage => {
   // Prevent bot from responding to its own messages
@@ -97,7 +115,10 @@ async function processCommand(content, discordChannel) {
       outputMessage = await leagueCommand.execute(arguments);
       break;
     case "stats":
-      outputMessage = await statsCommand.execute(arguments);
+      outputMessage = await statsCommand.execute(content, arguments);
+      break;
+    case "now":
+      outputMessage = await scheduledCommand.execute(content, arguments);
       break;
     default:
       outputMessage = `I don't understand the command. Try ${botName}!help`;

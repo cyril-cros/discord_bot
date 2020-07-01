@@ -20,18 +20,18 @@ ${botName}!${this.command} remove PLAYER_BATTLETAG ##==> To remove a ${clanName}
     this.clanName = clanName;
   }
 
-  execute(argumentList) {
+  async execute(argumentList) {
     let outputStr = `${getClanName(this.clanName)} `;
 
     if (!argumentList || argumentList.length === 0) {
-      outputStr += getPlayersList();
+      outputStr += await getPlayersList();
     } else {
       switch (argumentList[0]) {
         case COMMAND_ADD_PLAYER:
-          outputStr += addRemovePlayerToList(COMMAND_ADD_PLAYER, argumentList);
+          outputStr += await addRemovePlayerToList(COMMAND_ADD_PLAYER, argumentList);
           break;
-        case "remove":
-          outputStr += addRemovePlayerToList(
+        case COMMAND_REMOVE_PLAYER:
+          outputStr += await addRemovePlayerToList(
             COMMAND_REMOVE_PLAYER,
             argumentList
           );
@@ -42,17 +42,17 @@ ${botName}!${this.command} remove PLAYER_BATTLETAG ##==> To remove a ${clanName}
       }
     }
 
-    function getPlayersList() {
+    async function getPlayersList() {
       let outputStr = ``;
       try {
-        const players = fileUtils.getPlayers();
+        const players = await fileUtils.getPlayers();
         if (players && players.length > 0) {
           outputStr += `${players.length} Players are participating to W3C Ladder: \n\n`;
           players.forEach(player => {
             outputStr += `- ${player.pseudo} - (${player.battleTag})  \n`;
           });
         } else {
-          outputStr += `There is no Player configured. Please add some using command ${botName}!clanPlayers add battleTag`;
+          outputStr += `There is no Player configured. Please add some using command ${this.botName}!clanPlayers add battleTag`;
         }
       } catch (error) {
         outputStr += `ERROR - fetching all users failed - ${error}`;

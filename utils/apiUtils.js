@@ -1,5 +1,8 @@
 const axios = require("axios");
-const w3cApiUrl = `https://api.w3champions.com`;
+const w3cApiUrl = `https://statistic-service.w3champions.com/api`;
+const globalUtils = require("./globalUtils");
+const fileUtils = require("./fileUtils");
+const Player = require("../model/Player");
 
 async function getPlayerStats(player) {
   let response = await axios.get(
@@ -18,6 +21,13 @@ async function getPlayerStatsByBattleTag(battleTag) {
   return formatPlayerData(response);
 }
 
+module.exports.getLeagues = async () => {
+  return {
+    solo: await getLeague1to1(),
+    arrangerTeam2: await getLeague2to2AT()
+  };
+};
+
 async function getLeague1to1() {
   let response = await axios.get(`${w3cApiUrl}/leagues/20/1`);
 
@@ -27,6 +37,18 @@ async function getLeague2to2AT() {
   let response = await axios.get(`${w3cApiUrl}/leagues/20/6`);
 
   return refactorLeague(response);
+}
+
+async function getOngoing1v1Matches() {
+  let response = await axios.get(
+    `${w3cApiUrl}/matches/ongoing?offset=0&gateway=20&pageSize=50&gameMode=1`
+  );
+
+  let matches = {};
+  if (response && response.data) {
+    matches = response.data;
+  }
+  return refactorLeague(matches);
 }
 
 function refactorLeague(response) {
@@ -91,8 +113,29 @@ function formatPlayerData(response) {
   }
 }
 
+/* #################################################################  Refacto */
+module.exports.getPlayerObj = async function(playerId) {
+  let player = {};
+
+  if (globalUtils.checkBattleTag(playerId)) {
+    const splitBattleTag = playerId.split("#");
+
+    let playerToFound = await axios.get(
+      `${w3cApiUrl}/players/${splitBattleTag[0]}%23${splitBattleTag[1]}`
+    );
+
+    if (playerToFound && playerToFound.data !== "") {
+      let leagues = await this.getLeagues();
+      let clanPlayers = await fileUtils.getPlayers();
+      player = new Player(playerToFound.data, clanPlayers, leagues);
+    }
+  }
+  return player;
+};
+
 module.exports.getPlayers = getPlayerStats;
 module.exports.getPLayersMatchesHistoryByBattleTag = getPlayersMatchesHistoryByBattleTag;
 module.exports.getLeague1to1 = getLeague1to1;
 module.exports.getLeague2to2AT = getLeague2to2AT;
 module.exports.getPlayerStatsByBattleTag = getPlayerStatsByBattleTag;
+module.exports.getOngoing1v1Matches = getOngoing1v1Matches;
