@@ -1,4 +1,5 @@
 const getClanName = require("../utils/formatMessage").getClanName;
+const W3cPlayer = require("../model/W3cPlayer").W3cPlayer;
 const globalUtils = require("../utils/globalUtils");
 const apiUtils = require("../utils/apiUtils");
 const fileUtils = require("../utils/fileUtils");
@@ -27,7 +28,8 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
         switch (argumentList.length) {
           // Retrieve stats of a player
           case 1:
-            let player = await apiUtils.getPlayerObj(player1BattleTag);
+            let player = new W3cPlayer(player1BattleTag);
+            await player.initPlayer();
             if (player && player.battleTag !== undefined) {
               outputStr += formatMessageUtils.formatSinglePlayerStats(player);
             } else {

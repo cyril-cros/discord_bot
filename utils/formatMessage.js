@@ -9,7 +9,7 @@ module.exports.getClanName = function(clanName) {
   return output;
 };
 
-module.exports.formatSinglePlayerStats = function(player) {
+module.exports.formatSinglePlayerStatsOld = function(player) {
   let outputStr = ``;
   let iconIsClanMember = player.isClanMember ? `:bear:` : `:japanese_goblin:`;
 
