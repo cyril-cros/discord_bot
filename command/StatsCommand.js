@@ -70,28 +70,19 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
                 } else {
                   if (globalUtils.checkBattleTag(argumentList[2])) {
                     outputStr += ` Shows player stats against ${argumentList[2]} player: \n\n`;
-                    let matches = await apiUtils.getPLayersMatchesHistoryByBattleTag(
-                      argumentList[0]
+
+                    // Get Opponent stats
+                    const opponentPlayer = new W3cPlayer(player1BattleTag);
+                    await opponentPlayer.initPlayer();
+
+                    const historyResult = await globalUtils.stat1v1vsPlayer(
+                      argumentList[1],
+                      opponentPlayer
                     );
 
-                    let gameWon = 0;
-                    let gameLost = 0;
-
-                    for (const game of matches) {
-                      for (const player of game.players) {
-                        if (
-                          player.battleTag.toLowerCase() ===
-                          argumentList[2].toLowerCase()
-                        ) {
-                          player.won ? gameLost++ : gameWon++;
-                        }
-                      }
+                    if (historyResult) {
+                      outputStr += `${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
                     }
-                    outputStr += `${argumentList[0]} ${gameWon}/${gameLost} ${
-                      argumentList[2]
-                    }- (${Math.round(
-                      (gameWon / (gameWon + gameLost)) * 100
-                    )}) % \n`;
                   } else {
                     outputStr += `ERROR - Wrong battleTag in thrid argument: ${argumentList[2]}`;
                   }
