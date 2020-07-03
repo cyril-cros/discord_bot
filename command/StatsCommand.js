@@ -60,8 +60,10 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
                       opponentPlayer
                     );
                     if (historyResult) {
+                      const color =
+                          historyResult.win >= historyResult.loose ? "css" : "diff";
                       playedAgainstClanCounter++;
-                      outputStr += `:bear: ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
+                      outputStr += `\`\`\`${color}\n- ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\`\`\``;
                     }
                   }
                   if (playedAgainstClanCounter === 0) {
@@ -81,7 +83,10 @@ ${botName}!${this.command} PLAYER_BATTLETAG_1 VS PLAYER_BATTLETAG_2 ##==> Shows 
                     );
 
                     if (historyResult) {
-                      outputStr += `${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
+                      const color =
+                          historyResult.win >= historyResult.loose ? "css" : "diff";
+                      playedAgainstClanCounter++;
+                      outputStr += `\`\`\`${color}\n- ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\`\`\``;
                     }
                   } else {
                     outputStr += `ERROR - Wrong battleTag in thrid argument: ${argumentList[2]}`;

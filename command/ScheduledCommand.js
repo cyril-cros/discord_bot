@@ -60,8 +60,10 @@ class ScheduledCommand {
               opponent
             );
             if (historyResult) {
+              const color =
+                  historyResult.win >= historyResult.loose ? "css" : "diff";
               playedAgainstClanCounter++;
-              outputStr += `:bear: ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\n`;
+              outputStr += `\`\`\`${color}\n- ${historyResult.player1Name} (${historyResult.player1Battletag}) - ${historyResult.win} / ${historyResult.loose} (${historyResult.rate}%)\`\`\``;
             }
           }
           if (playedAgainstClanCounter === 0) {
