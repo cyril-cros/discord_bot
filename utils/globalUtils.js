@@ -26,16 +26,16 @@ module.exports.stat1v1vsPlayer = async function(player1, player2) {
           match.teams[1].players[0].battleTag === player1.battleTag)
           ? 1
           : 0;
-      return {
-        player1Name: player1.name,
-        player1Battletag: player1.battleTag,
-        player2Name: player2.name,
-        player2Battletag: player2.battleTag,
-        win: total && total > 0 ? winCounter : 0,
-        loose: total && total > 0 ? total - winCounter : 0,
-        rate: total && total > 0 ? Math.round((winCounter / total) * 100) : 0
-      };
     }
+    return {
+      player1Name: player1.name,
+      player1Battletag: player1.battleTag,
+      player2Name: player2.name,
+      player2Battletag: player2.battleTag,
+      win: total && total > 0 ? winCounter : 0,
+      loose: total && total > 0 ? total - winCounter : 0,
+      rate: total && total > 0 ? Math.round((winCounter / total) * 100) : 0
+    };
   } else {
     return undefined;
   }

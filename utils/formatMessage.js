@@ -42,9 +42,11 @@ module.exports.formatSinglePlayerStatsOld = function(player) {
 };
 
 module.exports.formatSinglePlayerStats = function(player) {
+  const playerBattleTagSplit = player.battleTag.split("#");
+
   let outputStr = ``;
   let iconIsClanMember = player.isClanMember ? `:bear:` : `:japanese_goblin:`;
-  outputStr += `${CR}${iconIsClanMember} - Stats of - **${player.name} (${player.battleTag})**${CR}`;
+  outputStr += `${CR}${iconIsClanMember} - Stats of - **${player.name} (${player.battleTag})** (https://w3champions.com/player/${playerBattleTagSplit[0]}%23${playerBattleTagSplit[1]})${CR}`;
   outputStr += `**Stats by Races**${CR}`;
   if (player.raceStats.human) {
     outputStr += `Human  - ${player.raceStats.human.wins} / ${player.raceStats.human.losses} (${player.raceStats.human.winrateLabel})${CR}`;
